@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
     title: 'GOOBER AGENT | cursed memecoin trading',
@@ -30,9 +31,11 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body>
-                <div className="grain-overlay" />
-                {children}
+            <body className="scanlines grid-bg">
+                <Navbar />
+                <div className="pt-16">
+                    {children}
+                </div>
             </body>
         </html>
     );

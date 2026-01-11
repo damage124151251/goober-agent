@@ -22,41 +22,41 @@ export default function StatsCards({ status }: StatsCardsProps) {
     const cards = [
         {
             icon: Wallet,
-            label: 'Balance',
+            label: 'BALANCE',
             value: `${formatSOL(status?.balance_sol)} SOL`,
-            color: 'text-goober-orange'
+            color: '#FF6B35'
         },
         {
             icon: status?.total_pnl && status.total_pnl >= 0 ? TrendingUp : TrendingDown,
-            label: 'Total PnL',
+            label: 'TOTAL PNL',
             value: `${status?.total_pnl && status.total_pnl >= 0 ? '+' : ''}${formatSOL(status?.total_pnl)} SOL`,
-            color: status?.total_pnl && status.total_pnl >= 0 ? 'text-green-400' : 'text-red-400'
+            color: status?.total_pnl && status.total_pnl >= 0 ? '#00FF88' : '#FF3366'
         },
         {
             icon: status?.today_pnl && status.today_pnl >= 0 ? TrendingUp : TrendingDown,
-            label: 'Today PnL',
+            label: 'TODAY PNL',
             value: `${status?.today_pnl && status.today_pnl >= 0 ? '+' : ''}${formatSOL(status?.today_pnl)} SOL`,
-            color: status?.today_pnl && status.today_pnl >= 0 ? 'text-green-400' : 'text-red-400'
+            color: status?.today_pnl && status.today_pnl >= 0 ? '#00FF88' : '#FF3366'
         },
         {
             icon: Target,
-            label: 'Win Rate',
+            label: 'WIN RATE',
             value: `${formatPercent(status?.win_rate)}%`,
-            color: 'text-blue-400'
+            color: '#D97757'
         },
         {
             icon: Trophy,
-            label: 'Wins',
-            value: status?.wins || 0,
+            label: 'WINS',
+            value: String(status?.wins || 0),
             subValue: `${status?.win_streak || 0} streak`,
-            color: 'text-green-400'
+            color: '#00FF88'
         },
         {
             icon: Skull,
-            label: 'Losses',
-            value: status?.losses || 0,
+            label: 'LOSSES',
+            value: String(status?.losses || 0),
             subValue: `${status?.loss_streak || 0} streak`,
-            color: 'text-red-400'
+            color: '#FF3366'
         }
     ];
 
@@ -68,21 +68,67 @@ export default function StatsCards({ status }: StatsCardsProps) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    className="cursed-card p-4"
+                    whileHover={{
+                        y: -4,
+                        x: -4,
+                        transition: { duration: 0.15 }
+                    }}
+                    className="pixel-card p-4 cursor-default"
+                    style={{
+                        background: '#1A1A1A',
+                        border: `4px solid ${card.color}`,
+                        position: 'relative'
+                    }}
                 >
-                    <div className="flex items-center gap-2 mb-2">
-                        <card.icon className={`w-5 h-5 ${card.color}`} />
-                        <span className="text-sm text-white-muted">{card.label}</span>
+                    {/* Icon and Label */}
+                    <div className="flex items-center gap-2 mb-3">
+                        <card.icon
+                            className="w-5 h-5"
+                            style={{ color: card.color }}
+                        />
+                        <span
+                            className="text-xs"
+                            style={{
+                                fontFamily: "'Press Start 2P', cursive",
+                                color: '#A0A0A0',
+                                fontSize: '8px'
+                            }}
+                        >
+                            {card.label}
+                        </span>
                     </div>
-                    <div className={`text-xl md:text-2xl font-bold font-pixel ${card.color}`}>
+
+                    {/* Value */}
+                    <div
+                        className="text-xl md:text-2xl font-bold"
+                        style={{
+                            fontFamily: "'VT323', monospace",
+                            color: card.color
+                        }}
+                    >
                         {card.value}
                     </div>
+
+                    {/* Sub Value */}
                     {card.subValue && (
-                        <div className="text-xs text-white-muted mt-1">
+                        <div
+                            className="text-xs mt-1"
+                            style={{
+                                fontFamily: "'Space Mono', monospace",
+                                color: '#666666'
+                            }}
+                        >
                             {card.subValue}
                         </div>
                     )}
+
+                    {/* Shine effect */}
+                    <div
+                        className="absolute top-0 left-0 right-0 h-1/3 pointer-events-none opacity-10"
+                        style={{
+                            background: 'linear-gradient(180deg, white 0%, transparent 100%)'
+                        }}
+                    />
                 </motion.div>
             ))}
         </div>

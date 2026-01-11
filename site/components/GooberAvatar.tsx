@@ -9,17 +9,6 @@ interface GooberAvatarProps {
 }
 
 export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps) {
-    const getEmoji = () => {
-        switch (mentalState) {
-            case 'CONFIDENT': return '😎';
-            case 'NORMAL': return '🙂';
-            case 'NERVOUS': return '😰';
-            case 'COPIUM': return '🥴';
-            case 'FULL_DEGEN': return '💀';
-            default: return '🟠';
-        }
-    };
-
     const getAnimation = () => {
         switch (mentalState) {
             case 'CONFIDENT':
@@ -36,24 +25,35 @@ export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps)
                     transition: { repeat: Infinity, duration: 0.3 }
                 };
             default:
-                return { y: [0, -5, 0], transition: { repeat: Infinity, duration: 3, ease: 'easeInOut' } };
+                return { y: [0, -10, 0], transition: { repeat: Infinity, duration: 3, ease: 'easeInOut' } };
         }
     };
 
     const getGlowColor = () => {
-        if (sanity >= 80) return 'rgba(74, 222, 128, 0.4)';
-        if (sanity >= 60) return 'rgba(96, 165, 250, 0.4)';
-        if (sanity >= 40) return 'rgba(251, 191, 36, 0.4)';
-        if (sanity >= 20) return 'rgba(249, 115, 22, 0.4)';
-        return 'rgba(239, 68, 68, 0.4)';
+        if (sanity >= 80) return 'rgba(0, 255, 136, 0.4)';
+        if (sanity >= 60) return 'rgba(255, 107, 53, 0.4)';
+        if (sanity >= 40) return 'rgba(255, 217, 61, 0.4)';
+        if (sanity >= 20) return 'rgba(217, 119, 87, 0.4)';
+        return 'rgba(255, 51, 102, 0.4)';
     };
 
     const getBorderColor = () => {
-        if (sanity >= 80) return '#4ade80';
-        if (sanity >= 60) return '#60a5fa';
-        if (sanity >= 40) return '#fbbf24';
-        if (sanity >= 20) return '#f97316';
-        return '#ef4444';
+        if (sanity >= 80) return '#00FF88';
+        if (sanity >= 60) return '#FF6B35';
+        if (sanity >= 40) return '#FFD93D';
+        if (sanity >= 20) return '#D97757';
+        return '#FF3366';
+    };
+
+    const getStateLabel = () => {
+        switch (mentalState) {
+            case 'CONFIDENT': return 'CONFIDENT';
+            case 'NORMAL': return 'NORMAL';
+            case 'NERVOUS': return 'NERVOUS';
+            case 'COPIUM': return 'COPIUM';
+            case 'FULL_DEGEN': return 'FULL DEGEN';
+            default: return 'LOADING';
+        }
     };
 
     return (
@@ -63,17 +63,17 @@ export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps)
         >
             {/* Glow Effect */}
             <div
-                className="absolute inset-0 rounded-full blur-2xl opacity-60"
+                className="absolute inset-0 blur-3xl opacity-60"
                 style={{ background: getGlowColor() }}
             />
 
-            {/* Avatar Container with Frame */}
+            {/* Pixel Avatar Container */}
             <div
-                className="relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden"
+                className="relative w-40 h-40 md:w-52 md:h-52 pixel-corners overflow-hidden"
                 style={{
-                    boxShadow: `0 0 40px ${getGlowColor()}, inset 0 0 20px ${getGlowColor()}`,
+                    boxShadow: `8px 8px 0 rgba(0,0,0,0.8), 0 0 40px ${getGlowColor()}`,
                     border: `4px solid ${getBorderColor()}`,
-                    background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+                    background: 'linear-gradient(135deg, #1A1A1A 0%, #252525 100%)'
                 }}
             >
                 {/* Goober Logo Image */}
@@ -82,32 +82,57 @@ export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps)
                     alt="Goober"
                     fill
                     className="object-cover"
+                    style={{ imageRendering: 'pixelated' }}
                     priority
                 />
 
-                {/* State Overlay Emoji */}
-                <div className="absolute bottom-2 right-2 text-2xl md:text-3xl bg-bg-primary/80 rounded-full p-1">
-                    {getEmoji()}
-                </div>
+                {/* Scanline overlay */}
+                <div
+                    className="absolute inset-0 pointer-events-none opacity-20"
+                    style={{
+                        background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3) 1px, transparent 1px, transparent 2px)'
+                    }}
+                />
+
+                {/* Corner decorations */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4" style={{ borderColor: getBorderColor() }} />
+                <div className="absolute top-0 right-0 w-4 h-4 border-t-4 border-r-4" style={{ borderColor: getBorderColor() }} />
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-b-4 border-l-4" style={{ borderColor: getBorderColor() }} />
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-b-4 border-r-4" style={{ borderColor: getBorderColor() }} />
             </div>
 
-            {/* Sanity Indicator */}
-            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
+            {/* Sanity Indicator - Pixel Style */}
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
                 <div
-                    className="bg-bg-secondary px-4 py-1 rounded-full"
-                    style={{ border: `2px solid ${getBorderColor()}` }}
+                    className="px-4 py-1"
+                    style={{
+                        background: '#1A1A1A',
+                        border: `3px solid ${getBorderColor()}`,
+                        boxShadow: '4px 4px 0 rgba(0,0,0,0.8)'
+                    }}
                 >
-                    <span className="font-pixel text-lg">{sanity}%</span>
+                    <span
+                        className="text-xl"
+                        style={{
+                            fontFamily: "'VT323', monospace",
+                            color: getBorderColor()
+                        }}
+                    >
+                        {sanity}%
+                    </span>
                 </div>
             </div>
 
             {/* State Label */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-8">
                 <span
-                    className="text-sm uppercase tracking-wider font-bold"
-                    style={{ color: getBorderColor() }}
+                    className="text-xs uppercase tracking-widest font-bold"
+                    style={{
+                        fontFamily: "'Press Start 2P', cursive",
+                        color: getBorderColor()
+                    }}
                 >
-                    {mentalState.replace('_', ' ')}
+                    {getStateLabel()}
                 </span>
             </div>
         </motion.div>

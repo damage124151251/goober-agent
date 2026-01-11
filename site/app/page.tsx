@@ -20,17 +20,27 @@ import StatsCards from '@/components/StatsCards';
 import ActivityFeed from '@/components/ActivityFeed';
 import TradeHistory from '@/components/TradeHistory';
 import PositionsTable from '@/components/PositionsTable';
+import LoadingScreen from '@/components/LoadingScreen';
+
+// Bot wallet address
+const BOT_WALLET = 'BBnch67eok1X6oBUnHoBZm65RaURECEP2sqAomTDCtSt';
 
 export default function Home() {
+    const [isLoading, setIsLoading] = useState(true);
     const [status, setStatus] = useState<SystemStatus | null>(null);
     const [thoughts, setThoughts] = useState<GooberThought[]>([]);
     const [trades, setTrades] = useState<Trade[]>([]);
     const [positions, setPositions] = useState<Position[]>([]);
-    const [latestThought, setLatestThought] = useState<string>('loading...');
+    const [latestThought, setLatestThought] = useState<string>('waiting for goober to wake up...');
 
     // Initial load
     useEffect(() => {
-        loadData();
+        const init = async () => {
+            await loadData();
+            // Simulate minimum loading time for effect
+            setTimeout(() => setIsLoading(false), 2000);
+        };
+        init();
 
         const supabase = getSupabase();
 
@@ -100,123 +110,272 @@ export default function Home() {
         setPositions(data);
     }
 
+    const getMentalStateDisplay = (state?: string): string => {
+        switch (state) {
+            case 'CONFIDENT': return 'CONFIDENT GOOBER';
+            case 'NORMAL': return 'NORMAL GOOBER';
+            case 'NERVOUS': return 'NERVOUS GOOBER';
+            case 'COPIUM': return 'COPIUM GOOBER';
+            case 'FULL_DEGEN': return 'FULL DEGEN GOOBER';
+            default: return 'LOADING...';
+        }
+    };
+
+    const getMentalStateColor = (state?: string): string => {
+        switch (state) {
+            case 'CONFIDENT': return '#00FF88';
+            case 'NORMAL': return '#FF6B35';
+            case 'NERVOUS': return '#FFD93D';
+            case 'COPIUM': return '#D97757';
+            case 'FULL_DEGEN': return '#FF3366';
+            default: return '#666666';
+        }
+    };
+
     return (
-        <main className="min-h-screen p-4 md:p-8">
-            {/* Header */}
-            <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4"
-            >
-                <div className="flex items-center gap-4">
-                    <h1 className="text-4xl md:text-5xl font-bold text-goober-orange">
+        <>
+            {/* Loading Screen */}
+            <AnimatePresence>
+                {isLoading && <LoadingScreen isLoading={isLoading} />}
+            </AnimatePresence>
+
+            <main className="min-h-screen p-4 md:p-8">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-12"
+                >
+                    <h1
+                        className="text-4xl md:text-6xl mb-4 glitch"
+                        data-text="GOOBER AGENT"
+                        style={{
+                            fontFamily: "'Press Start 2P', cursive",
+                            color: '#FF6B35'
+                        }}
+                    >
                         GOOBER AGENT
                     </h1>
-                    <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-                        status?.status === 'ONLINE' ? 'status-online' : 'status-offline'
-                    }`}>
-                        {status?.status || 'LOADING'}
-                    </span>
-                </div>
-                <p className="text-white-muted text-lg">cursed memecoin trading</p>
-            </motion.div>
+                    <p
+                        className="text-lg mb-4"
+                        style={{
+                            fontFamily: "'VT323', monospace",
+                            color: '#A0A0A0'
+                        }}
+                    >
+                        cursed memecoin trading on solana
+                    </p>
 
-            {/* Goober Section */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex flex-col md:flex-row items-center gap-8 mb-8"
-            >
-                <GooberAvatar
-                    mentalState={status?.mental_state || 'NORMAL'}
-                    sanity={status?.sanity || 50}
-                />
+                    {/* Status Badge */}
+                    <div className="flex justify-center items-center gap-4">
+                        <span
+                            className="px-4 py-2"
+                            style={{
+                                fontFamily: "'Press Start 2P', cursive",
+                                fontSize: '10px',
+                                background: status?.status === 'ONLINE' ? '#00FF88' : '#FF3366',
+                                color: '#0D0D0D',
+                                boxShadow: '4px 4px 0 rgba(0,0,0,0.5)'
+                            }}
+                        >
+                            {status?.status || 'OFFLINE'}
+                        </span>
+                    </div>
+                </motion.div>
 
-                <div className="flex-1 w-full">
-                    <ThoughtBubble thought={latestThought} />
+                {/* Bot Wallet Info */}
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex justify-center mb-8"
+                >
+                    <div
+                        className="pixel-card p-4 flex items-center gap-4"
+                        style={{
+                            background: '#1A1A1A',
+                            border: '4px solid #666666'
+                        }}
+                    >
+                        <span
+                            style={{
+                                fontFamily: "'Press Start 2P', cursive",
+                                fontSize: '10px',
+                                color: '#666666'
+                            }}
+                        >
+                            BOT WALLET:
+                        </span>
+                        <a
+                            href={`https://solscan.io/account/${BOT_WALLET}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                            style={{
+                                fontFamily: "'VT323', monospace",
+                                color: '#FF6B35',
+                                fontSize: '16px'
+                            }}
+                        >
+                            {BOT_WALLET.slice(0, 8)}...{BOT_WALLET.slice(-8)}
+                        </a>
+                    </div>
+                </motion.div>
 
-                    <div className="mt-6">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-lg font-bold">SANITY</span>
-                            <span className="font-pixel text-2xl">{status?.sanity || 50}%</span>
-                        </div>
-                        <SanityBar sanity={status?.sanity || 50} />
-                        <div className="mt-2 text-center">
-                            <span className={`text-lg font-bold ${getMentalStateColor(status?.mental_state)}`}>
-                                {getMentalStateDisplay(status?.mental_state)}
-                            </span>
+                {/* Goober Section */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-col md:flex-row items-center gap-8 mb-12"
+                >
+                    <GooberAvatar
+                        mentalState={status?.mental_state || 'NORMAL'}
+                        sanity={status?.sanity || 50}
+                    />
+
+                    <div className="flex-1 w-full max-w-xl">
+                        <ThoughtBubble thought={latestThought} />
+
+                        <div className="mt-8">
+                            <div className="flex items-center justify-between mb-3">
+                                <span
+                                    style={{
+                                        fontFamily: "'Press Start 2P', cursive",
+                                        fontSize: '12px',
+                                        color: '#FFFFFF'
+                                    }}
+                                >
+                                    SANITY
+                                </span>
+                                <span
+                                    style={{
+                                        fontFamily: "'VT323', monospace",
+                                        fontSize: '28px',
+                                        color: getMentalStateColor(status?.mental_state)
+                                    }}
+                                >
+                                    {status?.sanity || 50}%
+                                </span>
+                            </div>
+                            <SanityBar sanity={status?.sanity || 50} />
+                            <div className="mt-4 text-center">
+                                <span
+                                    style={{
+                                        fontFamily: "'Press Start 2P', cursive",
+                                        fontSize: '10px',
+                                        color: getMentalStateColor(status?.mental_state)
+                                    }}
+                                >
+                                    {getMentalStateDisplay(status?.mental_state)}
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </motion.div>
-
-            {/* Stats Cards */}
-            <StatsCards status={status} />
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-                {/* Activity Feed */}
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <ActivityFeed thoughts={thoughts} />
                 </motion.div>
 
-                {/* Trade History */}
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                >
-                    <TradeHistory trades={trades} />
-                </motion.div>
-            </div>
-
-            {/* Open Positions */}
-            {positions.length > 0 && (
+                {/* Stats Cards */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="mt-8"
                 >
-                    <PositionsTable positions={positions} />
+                    <StatsCards status={status} />
                 </motion.div>
-            )}
 
-            {/* Footer */}
-            <footer className="mt-12 text-center text-white-muted">
-                <p>made by a cursed orange creature</p>
-                <div className="flex justify-center gap-4 mt-2">
-                    <a href="/privacy" className="hover:text-goober-orange transition">Privacy</a>
-                    <span>|</span>
-                    <a href="/terms" className="hover:text-goober-orange transition">Terms</a>
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-12">
+                    {/* Activity Feed */}
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.5 }}
+                    >
+                        <ActivityFeed thoughts={thoughts} />
+                    </motion.div>
+
+                    {/* Trade History */}
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.6 }}
+                    >
+                        <TradeHistory trades={trades} />
+                    </motion.div>
                 </div>
-            </footer>
-        </main>
+
+                {/* Open Positions */}
+                {positions.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.7 }}
+                        className="mt-8"
+                    >
+                        <PositionsTable positions={positions} />
+                    </motion.div>
+                )}
+
+                {/* Footer */}
+                <footer className="mt-16 text-center">
+                    <div
+                        className="inline-block p-4 pixel-card"
+                        style={{
+                            background: '#1A1A1A',
+                            border: '4px solid #252525'
+                        }}
+                    >
+                        <p
+                            style={{
+                                fontFamily: "'VT323', monospace",
+                                color: '#666666',
+                                fontSize: '16px'
+                            }}
+                        >
+                            made by a cursed orange creature
+                        </p>
+                        <div className="flex justify-center gap-4 mt-3">
+                            <a
+                                href="/docs"
+                                className="hover:opacity-80 transition"
+                                style={{
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '8px',
+                                    color: '#FF6B35'
+                                }}
+                            >
+                                DOCS
+                            </a>
+                            <span style={{ color: '#333' }}>|</span>
+                            <a
+                                href="/story"
+                                className="hover:opacity-80 transition"
+                                style={{
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '8px',
+                                    color: '#FF6B35'
+                                }}
+                            >
+                                STORY
+                            </a>
+                            <span style={{ color: '#333' }}>|</span>
+                            <a
+                                href="https://github.com/damage124151251/goober-agent"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:opacity-80 transition"
+                                style={{
+                                    fontFamily: "'Press Start 2P', cursive",
+                                    fontSize: '8px',
+                                    color: '#FF6B35'
+                                }}
+                            >
+                                GITHUB
+                            </a>
+                        </div>
+                    </div>
+                </footer>
+            </main>
+        </>
     );
-}
-
-function getMentalStateDisplay(state?: string): string {
-    switch (state) {
-        case 'CONFIDENT': return 'Confident Goober 😎';
-        case 'NORMAL': return 'Normal Goober 🙂';
-        case 'NERVOUS': return 'Nervous Goober 😰';
-        case 'COPIUM': return 'Copium Goober 🥴';
-        case 'FULL_DEGEN': return 'Full Degen Goober 💀';
-        default: return 'Loading...';
-    }
-}
-
-function getMentalStateColor(state?: string): string {
-    switch (state) {
-        case 'CONFIDENT': return 'state-confident';
-        case 'NORMAL': return 'state-normal';
-        case 'NERVOUS': return 'state-nervous';
-        case 'COPIUM': return 'state-copium';
-        case 'FULL_DEGEN': return 'state-degen';
-        default: return '';
-    }
 }

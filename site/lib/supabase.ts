@@ -1,33 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Lazy initialization to avoid build-time errors
-let supabaseInstance: SupabaseClient | null = null;
+// Supabase credentials (public - anon key is meant to be exposed)
+const SUPABASE_URL = 'https://mwhgynorxpyqkwjwzlnr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im13aGd5bm9yeHB5cWt3and6bG5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxMDE2ODksImV4cCI6MjA4MzY3NzY4OX0.obAlu8QSskeEcAHmywY57iNErgZNq1jSeaB3femGyuI';
 
-function getSupabaseClient(): SupabaseClient {
-    if (supabaseInstance) return supabaseInstance;
+// Create Supabase client
+export const supabase: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-        // Return a dummy client for SSR/build time
-        // This will be replaced with real client on the browser
-        console.warn('Supabase credentials not available, using placeholder');
-        supabaseInstance = createClient('https://placeholder.supabase.co', 'placeholder');
-        return supabaseInstance;
-    }
-
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
-    return supabaseInstance;
-}
-
-export const supabase = typeof window !== 'undefined'
-    ? getSupabaseClient()
-    : createClient('https://placeholder.supabase.co', 'placeholder');
-
-// Re-export for client-side use
 export function getSupabase(): SupabaseClient {
-    return getSupabaseClient();
+    return supabase;
 }
 
 // Types
@@ -110,52 +91,97 @@ export interface GooberThought {
     created_at: string;
 }
 
-// Fetch functions - these will only be called client-side
+// Fetch functions
 export async function getSystemStatus(): Promise<SystemStatus | null> {
-    const client = getSupabaseClient();
-    const { data } = await client
-        .from('system_status')
-        .select('*')
-        .eq('id', 1)
-        .single();
-    return data;
+    try {
+        const { data, error } = await supabase
+            .from('system_status')
+            .select('*')
+            .eq('id', 1)
+            .single();
+
+        if (error) {
+            console.error('Error fetching system status:', error);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        console.error('Exception fetching system status:', e);
+        return null;
+    }
 }
 
 export async function getThoughts(limit = 20): Promise<GooberThought[]> {
-    const client = getSupabaseClient();
-    const { data } = await client
-        .from('goober_thoughts')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(limit);
-    return data || [];
+    try {
+        const { data, error } = await supabase
+            .from('goober_thoughts')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching thoughts:', error);
+            return [];
+        }
+        return data || [];
+    } catch (e) {
+        console.error('Exception fetching thoughts:', e);
+        return [];
+    }
 }
 
 export async function getTrades(limit = 20): Promise<Trade[]> {
-    const client = getSupabaseClient();
-    const { data } = await client
-        .from('trades')
-        .select('*, tokens(nome, simbolo, logo)')
-        .order('data', { ascending: false })
-        .limit(limit);
-    return data || [];
+    try {
+        const { data, error } = await supabase
+            .from('trades')
+            .select('*, tokens(nome, simbolo, logo)')
+            .order('data', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching trades:', error);
+            return [];
+        }
+        return data || [];
+    } catch (e) {
+        console.error('Exception fetching trades:', e);
+        return [];
+    }
 }
 
 export async function getOpenPositions(): Promise<Position[]> {
-    const client = getSupabaseClient();
-    const { data } = await client
-        .from('positions')
-        .select('*, tokens(nome, simbolo, logo)')
-        .eq('status', 'open');
-    return data || [];
+    try {
+        const { data, error } = await supabase
+            .from('positions')
+            .select('*, tokens(nome, simbolo, logo)')
+            .eq('status', 'open');
+
+        if (error) {
+            console.error('Error fetching positions:', error);
+            return [];
+        }
+        return data || [];
+    } catch (e) {
+        console.error('Exception fetching positions:', e);
+        return [];
+    }
 }
 
 export async function getRecentTokens(limit = 10): Promise<Token[]> {
-    const client = getSupabaseClient();
-    const { data } = await client
-        .from('tokens')
-        .select('*')
-        .order('criado_em', { ascending: false })
-        .limit(limit);
-    return data || [];
+    try {
+        const { data, error } = await supabase
+            .from('tokens')
+            .select('*')
+            .order('criado_em', { ascending: false })
+            .limit(limit);
+
+        if (error) {
+            console.error('Error fetching tokens:', error);
+            return [];
+        }
+        return data || [];
+    } catch (e) {
+        console.error('Exception fetching tokens:', e);
+        return [];
+    }
 }
