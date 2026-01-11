@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    supabase,
+    getSupabase,
     getSystemStatus,
     getThoughts,
     getTrades,
@@ -31,6 +31,8 @@ export default function Home() {
     // Initial load
     useEffect(() => {
         loadData();
+
+        const supabase = getSupabase();
 
         // Set up realtime subscriptions
         const statusChannel = supabase

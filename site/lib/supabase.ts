@@ -1,9 +1,34 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Lazy initialization to avoid build-time errors
+let supabaseInstance: SupabaseClient | null = null;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabaseClient(): SupabaseClient {
+    if (supabaseInstance) return supabaseInstance;
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        // Return a dummy client for SSR/build time
+        // This will be replaced with real client on the browser
+        console.warn('Supabase credentials not available, using placeholder');
+        supabaseInstance = createClient('https://placeholder.supabase.co', 'placeholder');
+        return supabaseInstance;
+    }
+
+    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey);
+    return supabaseInstance;
+}
+
+export const supabase = typeof window !== 'undefined'
+    ? getSupabaseClient()
+    : createClient('https://placeholder.supabase.co', 'placeholder');
+
+// Re-export for client-side use
+export function getSupabase(): SupabaseClient {
+    return getSupabaseClient();
+}
 
 // Types
 export interface SystemStatus {
@@ -85,9 +110,10 @@ export interface GooberThought {
     created_at: string;
 }
 
-// Fetch functions
+// Fetch functions - these will only be called client-side
 export async function getSystemStatus(): Promise<SystemStatus | null> {
-    const { data } = await supabase
+    const client = getSupabaseClient();
+    const { data } = await client
         .from('system_status')
         .select('*')
         .eq('id', 1)
@@ -96,7 +122,8 @@ export async function getSystemStatus(): Promise<SystemStatus | null> {
 }
 
 export async function getThoughts(limit = 20): Promise<GooberThought[]> {
-    const { data } = await supabase
+    const client = getSupabaseClient();
+    const { data } = await client
         .from('goober_thoughts')
         .select('*')
         .order('created_at', { ascending: false })
@@ -105,7 +132,8 @@ export async function getThoughts(limit = 20): Promise<GooberThought[]> {
 }
 
 export async function getTrades(limit = 20): Promise<Trade[]> {
-    const { data } = await supabase
+    const client = getSupabaseClient();
+    const { data } = await client
         .from('trades')
         .select('*, tokens(nome, simbolo, logo)')
         .order('data', { ascending: false })
@@ -114,7 +142,8 @@ export async function getTrades(limit = 20): Promise<Trade[]> {
 }
 
 export async function getOpenPositions(): Promise<Position[]> {
-    const { data } = await supabase
+    const client = getSupabaseClient();
+    const { data } = await client
         .from('positions')
         .select('*, tokens(nome, simbolo, logo)')
         .eq('status', 'open');
@@ -122,7 +151,8 @@ export async function getOpenPositions(): Promise<Position[]> {
 }
 
 export async function getRecentTokens(limit = 10): Promise<Token[]> {
-    const { data } = await supabase
+    const client = getSupabaseClient();
+    const { data } = await client
         .from('tokens')
         .select('*')
         .order('criado_em', { ascending: false })

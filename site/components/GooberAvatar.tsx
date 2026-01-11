@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface GooberAvatarProps {
     mentalState: string;
@@ -47,6 +48,14 @@ export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps)
         return 'rgba(239, 68, 68, 0.4)';
     };
 
+    const getBorderColor = () => {
+        if (sanity >= 80) return '#4ade80';
+        if (sanity >= 60) return '#60a5fa';
+        if (sanity >= 40) return '#fbbf24';
+        if (sanity >= 20) return '#f97316';
+        return '#ef4444';
+    };
+
     return (
         <motion.div
             animate={getAnimation()}
@@ -58,30 +67,46 @@ export default function GooberAvatar({ mentalState, sanity }: GooberAvatarProps)
                 style={{ background: getGlowColor() }}
             />
 
-            {/* Avatar Container */}
+            {/* Avatar Container with Frame */}
             <div
-                className="relative w-40 h-40 md:w-52 md:h-52 rounded-full flex items-center justify-center cursed-card goober-glow"
+                className="relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden"
                 style={{
-                    background: 'linear-gradient(135deg, #e07a3a 0%, #d4a574 50%, #e07a3a 100%)',
-                    boxShadow: `0 0 40px ${getGlowColor()}`
+                    boxShadow: `0 0 40px ${getGlowColor()}, inset 0 0 20px ${getGlowColor()}`,
+                    border: `4px solid ${getBorderColor()}`,
+                    background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
                 }}
             >
-                {/* Face */}
-                <div className="text-6xl md:text-8xl">
+                {/* Goober Logo Image */}
+                <Image
+                    src="/goober/goober-logo.png"
+                    alt="Goober"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+
+                {/* State Overlay Emoji */}
+                <div className="absolute bottom-2 right-2 text-2xl md:text-3xl bg-bg-primary/80 rounded-full p-1">
                     {getEmoji()}
                 </div>
+            </div>
 
-                {/* Sanity Indicator */}
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-                    <div className="bg-bg-secondary px-3 py-1 rounded-full border-2 border-goober-orange">
-                        <span className="font-pixel text-lg">{sanity}%</span>
-                    </div>
+            {/* Sanity Indicator */}
+            <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
+                <div
+                    className="bg-bg-secondary px-4 py-1 rounded-full"
+                    style={{ border: `2px solid ${getBorderColor()}` }}
+                >
+                    <span className="font-pixel text-lg">{sanity}%</span>
                 </div>
             </div>
 
             {/* State Label */}
-            <div className="text-center mt-4">
-                <span className="text-sm text-white-muted uppercase tracking-wider">
+            <div className="text-center mt-6">
+                <span
+                    className="text-sm uppercase tracking-wider font-bold"
+                    style={{ color: getBorderColor() }}
+                >
                     {mentalState.replace('_', ' ')}
                 </span>
             </div>
