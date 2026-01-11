@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Home, BookOpen, Scroll, ExternalLink } from 'lucide-react';
 
@@ -27,21 +28,19 @@ export default function Navbar() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3 group">
                     <div
-                        className="w-10 h-10 flex items-center justify-center"
+                        className="relative w-10 h-10 overflow-hidden"
                         style={{
-                            background: '#FF6B35',
+                            border: '2px solid #FF6B35',
                             boxShadow: '3px 3px 0 rgba(0,0,0,0.5)'
                         }}
                     >
-                        <span
-                            style={{
-                                fontFamily: "'Press Start 2P', cursive",
-                                color: '#0D0D0D',
-                                fontSize: '12px'
-                            }}
-                        >
-                            G
-                        </span>
+                        <Image
+                            src="/goober/goober-logo.png"
+                            alt="Goober"
+                            fill
+                            className="object-cover"
+                            style={{ imageRendering: 'pixelated' }}
+                        />
                     </div>
                     <span
                         className="hidden md:block"

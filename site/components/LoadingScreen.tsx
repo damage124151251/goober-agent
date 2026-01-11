@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface LoadingScreenProps {
     isLoading: boolean;
@@ -32,7 +33,7 @@ export default function LoadingScreen({ isLoading }: LoadingScreenProps) {
             />
 
             <div className="relative flex flex-col items-center">
-                {/* Pixel Goober Logo */}
+                {/* Goober Logo */}
                 <motion.div
                     animate={{
                         y: [0, -20, 0],
@@ -45,70 +46,31 @@ export default function LoadingScreen({ isLoading }: LoadingScreenProps) {
                     className="relative"
                 >
                     {/* Glowing effect behind */}
-                    <div className="absolute inset-0 blur-2xl bg-[#FF6B35] opacity-30 rounded-full scale-150" />
+                    <div className="absolute inset-0 blur-3xl bg-[#FF6B35] opacity-40 rounded-full scale-150" />
 
-                    {/* Main pixel art container */}
-                    <div className="relative w-32 h-32 pixel-corners bg-[#1A1A1A] border-4 border-[#FF6B35] flex items-center justify-center"
+                    {/* Main logo container */}
+                    <div className="relative w-40 h-40 pixel-corners overflow-hidden"
                         style={{
-                            boxShadow: '8px 8px 0 rgba(0,0,0,0.8), 0 0 40px rgba(255, 107, 53, 0.3)'
+                            border: '4px solid #FF6B35',
+                            boxShadow: '8px 8px 0 rgba(0,0,0,0.8), 0 0 60px rgba(255, 107, 53, 0.4)'
                         }}
                     >
-                        {/* Pixel Goober face */}
-                        <div className="relative w-20 h-20">
-                            {/* Orange background circle */}
-                            <div className="absolute inset-0 bg-[#FF6B35] rounded-lg" />
+                        <Image
+                            src="/goober/goober-logo.png"
+                            alt="Goober"
+                            fill
+                            className="object-cover"
+                            style={{ imageRendering: 'pixelated' }}
+                            priority
+                        />
 
-                            {/* Eyes - blinking animation */}
-                            <motion.div
-                                animate={{
-                                    scaleY: [1, 0.1, 1],
-                                }}
-                                transition={{
-                                    duration: 0.2,
-                                    repeat: Infinity,
-                                    repeatDelay: 3
-                                }}
-                                className="absolute top-5 left-3 w-3 h-3 bg-white rounded-sm"
-                            />
-                            <motion.div
-                                animate={{
-                                    scaleY: [1, 0.1, 1],
-                                }}
-                                transition={{
-                                    duration: 0.2,
-                                    repeat: Infinity,
-                                    repeatDelay: 3
-                                }}
-                                className="absolute top-5 right-3 w-3 h-3 bg-white rounded-sm"
-                            />
-
-                            {/* Pupils */}
-                            <motion.div
-                                animate={{
-                                    x: [-1, 1, -1],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                }}
-                                className="absolute top-6 left-4 w-1.5 h-1.5 bg-[#0D0D0D]"
-                            />
-                            <motion.div
-                                animate={{
-                                    x: [-1, 1, -1],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                }}
-                                className="absolute top-6 right-4 w-1.5 h-1.5 bg-[#0D0D0D]"
-                            />
-
-                            {/* Confused mouth */}
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-6 h-2 bg-[#0D0D0D] rounded-sm"
-                                style={{ transform: 'translateX(-50%) rotate(-5deg)' }}
-                            />
-                        </div>
+                        {/* Scanline overlay on image */}
+                        <div
+                            className="absolute inset-0 pointer-events-none opacity-30"
+                            style={{
+                                background: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3) 1px, transparent 1px, transparent 2px)'
+                            }}
+                        />
                     </div>
                 </motion.div>
 
