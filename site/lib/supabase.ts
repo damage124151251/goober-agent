@@ -1,0 +1,131 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// Types
+export interface SystemStatus {
+    id: number;
+    status: string;
+    wallet_address: string | null;
+    balance_sol: number;
+    total_pnl: number;
+    today_pnl: number;
+    total_trades: number;
+    wins: number;
+    losses: number;
+    win_rate: number;
+    win_streak: number;
+    loss_streak: number;
+    sanity: number;
+    mental_state: string;
+    profit_to_distribute: number;
+    updated_at: string;
+}
+
+export interface Token {
+    id: string;
+    ca: string;
+    nome: string;
+    simbolo: string;
+    logo: string | null;
+    market_cap: number;
+    preco: number;
+    holders: number;
+    liquidity: number;
+    goober_score: number;
+    goober_decision: string;
+    goober_thought: string;
+    goober_confidence: string;
+    status: string;
+    criado_em: string;
+}
+
+export interface Trade {
+    id: string;
+    token_id: string;
+    tipo: string;
+    valor_sol: number;
+    preco: number;
+    pnl_sol: number | null;
+    pnl_percent: number | null;
+    goober_reaction: string;
+    mental_state_at_trade: string;
+    sanity_at_trade: number;
+    tx_signature: string;
+    data: string;
+    tokens?: Token;
+}
+
+export interface Position {
+    id: string;
+    token_id: string;
+    status: string;
+    valor_sol: number;
+    entry_price: number;
+    current_price: number;
+    pnl_percent: number;
+    pnl_sol: number;
+    stop_loss: number;
+    take_profit: number;
+    mental_state_at_entry: string;
+    aberto_em: string;
+    tokens?: Token;
+}
+
+export interface GooberThought {
+    id: string;
+    thought: string;
+    type: string;
+    related_token: string | null;
+    mental_state: string;
+    sanity: number;
+    created_at: string;
+}
+
+// Fetch functions
+export async function getSystemStatus(): Promise<SystemStatus | null> {
+    const { data } = await supabase
+        .from('system_status')
+        .select('*')
+        .eq('id', 1)
+        .single();
+    return data;
+}
+
+export async function getThoughts(limit = 20): Promise<GooberThought[]> {
+    const { data } = await supabase
+        .from('goober_thoughts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+    return data || [];
+}
+
+export async function getTrades(limit = 20): Promise<Trade[]> {
+    const { data } = await supabase
+        .from('trades')
+        .select('*, tokens(nome, simbolo, logo)')
+        .order('data', { ascending: false })
+        .limit(limit);
+    return data || [];
+}
+
+export async function getOpenPositions(): Promise<Position[]> {
+    const { data } = await supabase
+        .from('positions')
+        .select('*, tokens(nome, simbolo, logo)')
+        .eq('status', 'open');
+    return data || [];
+}
+
+export async function getRecentTokens(limit = 10): Promise<Token[]> {
+    const { data } = await supabase
+        .from('tokens')
+        .select('*')
+        .order('criado_em', { ascending: false })
+        .limit(limit);
+    return data || [];
+}
